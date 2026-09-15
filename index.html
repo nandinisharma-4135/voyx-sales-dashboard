@@ -1,0 +1,2108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Voyx Admin Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+
+<style>
+  :root{
+    --bg:#f2f3f6;
+    --card:#ffffff;
+    --navy:#12162a;
+    --navy-2:#1b2036;
+    --orange:#f2601f;
+    --orange-soft:#fde8dc;
+    --text:#1b1e2b;
+    --muted:#8a8fa3;
+    --border:#eceef2;
+    --green:#1f9d55;
+  }
+
+  *{box-sizing:border-box;}
+
+  body{
+    margin:0;
+    font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    padding:20px 28px 40px;
+  }
+
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:18px;
+  }
+
+  .logo{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-weight:800;
+    font-size:20px;
+    letter-spacing:0.5px;
+  }
+
+  .logo span.v{
+    color:var(--orange);
+    font-size:24px;
+  }
+
+  .topbar-right{
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+
+  .date-input{
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:8px 12px;
+    font-size:13px;
+    background:#fff;
+    color:var(--text);
+    cursor:pointer;
+  }
+
+  .btn{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    border:1px solid var(--border);
+    background:#fff;
+    color:var(--text);
+    padding:8px 14px;
+    border-radius:8px;
+    font-size:13px;
+    cursor:pointer;
+    font-weight:600;
+  }
+
+  .btn.active{
+    background:var(--orange);
+    color:#fff;
+    border-color:var(--orange);
+  }
+
+  .btn.dark{
+    background:var(--navy);
+    color:#fff;
+    border-color:var(--navy);
+  }
+
+  .admin{
+    text-align:right;
+    font-size:13px;
+  }
+
+  .admin .name{
+    font-weight:700;
+  }
+
+  .admin .logout{
+    color:var(--orange);
+    font-size:12px;
+    cursor:pointer;
+  }
+
+  .cards-row{
+    display:grid;
+    grid-template-columns:1.3fr 1fr 1fr 1fr;
+    gap:14px;
+    margin-bottom:16px;
+  }
+
+  .card{
+    background:var(--card);
+    border-radius:14px;
+    padding:18px 20px;
+    border:1px solid var(--border);
+  }
+
+  .card.hero{
+    background:var(--navy);
+    color:#fff;
+  }
+
+  .card.hero .label{
+    color:#9ea3b8;
+    font-size:12px;
+    letter-spacing:0.5px;
+    text-transform:uppercase;
+  }
+
+  .card.hero .big{
+    font-size:34px;
+    font-weight:800;
+    margin:6px 0 2px;
+  }
+
+  .card.hero .big small{
+    font-size:16px;
+    font-weight:600;
+    color:#c9cde0;
+    margin-left:6px;
+  }
+
+  .card.hero .rev{
+    color:var(--orange);
+    font-weight:700;
+    font-size:14px;
+  }
+
+  .card .icon{
+    width:28px;
+    height:28px;
+    border-radius:8px;
+    background:var(--orange-soft);
+    color:var(--orange);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-bottom:10px;
+    font-size:14px;
+  }
+
+  .card .label{
+    color:var(--muted);
+    font-size:11px;
+    letter-spacing:0.4px;
+    text-transform:uppercase;
+    font-weight:700;
+  }
+
+  .card .big{
+    font-size:24px;
+    font-weight:800;
+    margin:6px 0 2px;
+    color:var(--text);
+  }
+
+  .card .rev{
+    color:var(--muted);
+    font-size:13px;
+    font-weight:600;
+  }
+
+  .card .rev b{
+    color:var(--orange);
+  }
+
+  .mid-row{
+    display:grid;
+    grid-template-columns:minmax(0,2.1fr) minmax(0,1fr);
+    gap:14px;
+    margin-bottom:16px;
+    align-items:start;
+    visibility:visible;
+  }
+
+  .panel{
+    display:block;
+    position:relative;
+    background:var(--card);
+    border-radius:14px;
+    border:1px solid var(--border);
+    overflow:hidden;
+    min-width:0;
+    min-height:120px;
+    visibility:visible;
+  }
+
+  .panel-title{
+    padding:14px 18px;
+    font-size:13px;
+    font-weight:700;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+
+  table{
+    width:100%;
+    min-width:760px;
+    border-collapse:collapse;
+    font-size:13px;
+  }
+
+  .leaderboard-scroll{
+    width:100%;
+    overflow-x:auto;
+    display:block;
+  }
+
+  th{
+    text-align:left;
+    color:var(--muted);
+    font-weight:700;
+    font-size:11px;
+    text-transform:uppercase;
+    padding:10px 14px;
+    border-bottom:1px solid var(--border);
+  }
+
+  td{
+    padding:10px 14px;
+    border-bottom:1px solid var(--border);
+    vertical-align:middle;
+  }
+
+  tr:last-child td{
+    border-bottom:none;
+  }
+
+  .rank{
+    font-weight:700;
+    color:var(--muted);
+  }
+
+  .rep-name{
+    font-weight:700;
+  }
+
+  .rep-sub{
+    color:var(--muted);
+    font-size:11px;
+  }
+
+  .mtd-num{
+    color:var(--orange);
+    font-weight:700;
+  }
+
+  .target-bar{
+    width:80px;
+    height:5px;
+    background:#eee;
+    border-radius:4px;
+    overflow:hidden;
+    margin-top:4px;
+  }
+
+  .target-bar span{
+    display:block;
+    height:100%;
+    background:var(--orange);
+  }
+
+  .target-pct{
+    font-size:11px;
+    font-weight:700;
+  }
+
+  .panel.dark{
+    background:var(--navy);
+    color:#fff;
+  }
+
+  .panel.dark .panel-title{
+    border-color:#2a3050;
+    color:#fff;
+  }
+
+  .dest-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:11px 18px;
+    border-bottom:1px solid #262c48;
+    font-size:13px;
+  }
+
+  .dest-row:last-child{
+    border-bottom:none;
+  }
+
+  .dest-count{
+    background:#242a48;
+    padding:4px 10px;
+    border-radius:6px;
+    font-size:12px;
+    font-weight:700;
+    min-width:34px;
+    text-align:center;
+  }
+
+  .charts-row{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    gap:14px;
+    visibility:visible;
+  }
+
+  .chart-box{
+    display:block;
+    position:relative;
+    background:var(--card);
+    border-radius:14px;
+    border:1px solid var(--border);
+    padding:14px 18px;
+    min-width:0;
+    min-height:320px;
+    height:320px;
+    visibility:visible;
+  }
+
+  .chart-box canvas{
+    display:block !important;
+    width:100% !important;
+    height:250px !important;
+    max-width:100%;
+    visibility:visible;
+  }
+
+  @media(max-width:1100px){
+    .cards-row{
+      grid-template-columns:1fr 1fr;
+    }
+
+    .mid-row,
+    .charts-row{
+      grid-template-columns:1fr;
+    }
+
+    .leaderboard-scroll{
+      overflow-x:auto;
+    }
+  }
+</style>
+</head>
+
+<body>
+
+<div class="topbar">
+  <div class="logo">
+    <span class="v">V</span>OYX
+  </div>
+
+  <div class="topbar-right">
+    <input type="date" id="dashDate" class="date-input">
+
+    <button class="btn active" id="tabDashboard">
+      ▤ Dashboard
+    </button>
+
+    <button class="btn" id="tabWallet">
+      💳 Wallet Summary
+    </button>
+
+    <button class="btn dark" id="downloadCsv">
+      ⬇ Download CSV
+    </button>
+
+    <div class="admin">
+      <div class="name">Voyx Admin</div>
+      <div class="logout">Logout →</div>
+    </div>
+  </div>
+</div>
+
+<div class="cards-row">
+
+  <div class="card hero">
+    <div class="label">Today Performance</div>
+
+    <div class="big" id="todayOrders">
+      --<small>Orders</small>
+    </div>
+
+    <div class="rev" id="todayRevenue">
+      ₹--K Revenue
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="icon">📊</div>
+
+    <div class="label" id="mtdLabel">
+      MONTH MTD
+    </div>
+
+    <div class="big" id="mtdOrders">
+      --
+    </div>
+
+    <div class="rev">
+      ₹<span id="mtdRevenue">--</span>K Revenue
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="icon">↺</div>
+
+    <div class="label">
+      Prev Month (Same Day)
+    </div>
+
+    <div class="big" id="prevSameDayOrders">
+      --
+    </div>
+
+    <div class="rev">
+      ₹<span id="prevSameDayRevenue">--</span>K Revenue
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="icon">📅</div>
+
+    <div class="label">
+      Prev Month
+    </div>
+
+    <div class="big" id="prevMonthOrders">
+      --
+    </div>
+
+    <div class="rev">
+      ₹<span id="prevMonthRevenue">--</span>K Revenue
+    </div>
+  </div>
+
+</div>
+
+<div class="mid-row">
+
+  <div class="panel">
+
+    <div class="panel-title">
+      ▤ Daily Leaderboard
+    </div>
+
+    <div class="leaderboard-scroll">
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Sales_R</th>
+            <th>#Day</th>
+            <th>#MTD</th>
+            <th>MTD Rev</th>
+            <th>ARPU</th>
+            <th>Target</th>
+            <th>#PV_Month</th>
+          </tr>
+        </thead>
+
+        <tbody id="leaderboardBody"></tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+  <div class="panel dark">
+
+    <div class="panel-title">
+      ◐ Top Destinations
+    </div>
+
+    <div id="destinationsList"></div>
+
+  </div>
+
+</div>
+
+<div class="charts-row">
+
+  <div class="chart-box">
+
+    <div class="panel-title" style="border:none;padding-left:0;">
+      ▤ Daily Summary
+    </div>
+
+    <canvas id="dailyChart"></canvas>
+
+  </div>
+
+  <div class="chart-box">
+
+    <div class="panel-title" style="border:none;padding-left:0;">
+      ▤ Monthly Summary
+    </div>
+
+    <canvas id="monthlyChart"></canvas>
+
+  </div>
+
+</div>
+
+<script>
+
+/* ---------- Deterministic seeded RNG ---------- */
+
+function seedFromString(str){
+
+  let h = 0;
+
+  for(let i = 0; i < str.length; i++){
+    h = Math.imul(31, h) + str.charCodeAt(i) | 0;
+  }
+
+  return () => {
+
+    h = Math.imul(h ^ (h >>> 15), h | 1);
+
+    h ^= h + Math.imul(h ^ (h >>> 7), h | 61);
+
+    return ((h ^ (h >>> 14)) >>> 0) / 4294967296;
+
+  };
+
+}
+
+function rngInt(rng, min, max){
+
+  return Math.floor(
+    rng() * (max - min + 1)
+  ) + min;
+
+}
+
+const salesReps = [
+  "Faizan",
+  "Talha",
+  "Bhageshri",
+  "Nidhi",
+  "Sanika",
+  "Prabhat",
+  "Farooq"
+];
+
+const destinations = [
+  "Thailand",
+  "Singapore, Malaysia",
+  "Vietnam",
+  "Singapore, Malaysia, Thailand",
+  "Japan",
+  "Singapore, Malaysia, Indonesia",
+  "Bali, Indonesia"
+];
+
+const monthNames = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec"
+];
+
+
+/* ==========================================================
+   SUPABASE CONFIGURATION
+
+   CHANGE ONLY THESE TWO VALUES:
+   1. baseUrl
+   2. apiKey
+========================================================== */
+
+const API_CONFIG = {
+
+  enabled: true,
+
+  // CHANGE THIS TO YOUR FRIEND'S SUPABASE PROJECT URL
+  baseUrl: "https://aiabkrssscmqdhwlomae.supabase.co",
+
+  // CHANGE THIS TO YOUR FRIEND'S SUPABASE ANON/PUBLIC KEY
+  apiKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpYWJrcnNzc2NtcWRod2xvbWFlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0MTEwMDEsImV4cCI6MjA5Njk4NzAwMX0._0AEIppjujUUJ3l_KHlMGXITwhjk10PuoToVtNS2M4g"
+
+};
+
+
+/* ==========================================================
+   SUPABASE RPC FUNCTION
+
+   Schema:
+   sales_dashboard
+
+   Function:
+   get_sales_dashboard
+
+   Parameter:
+   report_date date
+========================================================== */
+
+async function fetchRealData(dateStr){
+
+  const controller = new AbortController();
+
+  const timeoutId = setTimeout(
+    () => controller.abort(),
+    10000
+  );
+
+  try{
+
+    const res = await fetch(
+
+      API_CONFIG.baseUrl +
+      "/rest/v1/rpc/get_sales_dashboard",
+
+      {
+
+        method: "POST",
+
+        headers: {
+
+          "apikey":
+            API_CONFIG.apiKey,
+
+          "Authorization":
+            `Bearer ${API_CONFIG.apiKey}`,
+
+          "Content-Type":
+            "application/json",
+
+          "Accept-Profile":
+            "sales_dashboard",
+
+          "Content-Profile":
+            "sales_dashboard"
+
+        },
+
+        body: JSON.stringify({
+
+          report_date: dateStr
+
+        }),
+
+        signal: controller.signal
+
+      }
+
+    );
+
+    const responseText =
+      await res.text();
+
+    if(!res.ok){
+
+      throw new Error(
+
+        "API request failed: " +
+        res.status +
+        " " +
+        responseText
+
+      );
+
+    }
+
+    let result;
+
+    try{
+
+      result =
+        JSON.parse(responseText);
+
+    }catch(e){
+
+      throw new Error(
+
+        "Invalid JSON response from sales dashboard API: " +
+        responseText
+
+      );
+
+    }
+
+    console.log(
+      "Raw get_sales_dashboard response:",
+      result
+    );
+
+    return mapRpcResponse(
+      result,
+      dateStr
+    );
+
+  }finally{
+
+    clearTimeout(timeoutId);
+
+  }
+
+}
+
+
+/* ---------- Map API response ---------- */
+
+function mapRpcResponse(row, dateStr){
+
+  console.log(
+    "get_sales_dashboard API response:",
+    row
+  );
+
+  if(Array.isArray(row)){
+
+    row =
+      row[0] || {};
+
+  }
+
+  const daily =
+    Array.isArray(row?.daily_metrics)
+      ? row.daily_metrics
+      : [];
+
+  const monthly =
+    Array.isArray(row?.month_metrics)
+      ? row.month_metrics
+      : [];
+
+  const reps =
+    Array.isArray(row?.sales_rep_metrics)
+      ? row.sales_rep_metrics
+      : [];
+
+  const kpi =
+    Array.isArray(row?.kpi_metrics)
+      ? (row.kpi_metrics[0] || {})
+      : {};
+
+  console.log(
+    "Leaderboard rows:",
+    reps
+  );
+
+  const date =
+    new Date(dateStr + "T00:00:00");
+
+
+  const leaderboard = reps
+
+    .map(r => ({
+
+      name:
+        r.sales_rep ||
+        "Unknown",
+
+      day:
+        Number(r.tdy_sales || 0),
+
+      mtd:
+        Number(r.mtd_sales || 0),
+
+      mtdRev:
+        Number(r.mtd_revenue || 0),
+
+      arpu:
+        Number(r.mtd_sales)
+          ? Math.round(
+              Number(r.mtd_revenue || 0) /
+              Number(r.mtd_sales)
+            )
+          : 0,
+
+      target:
+        125,
+
+      pct:
+        Math.min(
+          140,
+          Math.round(
+            (Number(r.mtd_sales || 0) / 125) *
+            100
+          )
+        ),
+
+      pvMonth:
+        r.pv_month ?? null
+
+    }))
+
+    .sort(
+      (a, b) =>
+        b.mtd - a.mtd
+    );
+
+
+  const dailyLabels = daily.map(d => {
+
+    const value =
+      d.order_date ||
+      d.date;
+
+    if(!value){
+
+      return "";
+
+    }
+
+    const parsed =
+      new Date(
+
+        value +
+        (
+          String(value).includes("T")
+            ? ""
+            : "T00:00:00"
+
+        )
+
+      );
+
+    return isNaN(
+      parsed.getTime()
+    )
+
+      ? String(value)
+
+      : parsed.toLocaleDateString(
+
+          "en-IN",
+
+          {
+            day: "2-digit",
+            month: "short"
+          }
+
+        );
+
+  });
+
+
+  const dailyValues = daily.map(
+
+    d =>
+      Number(
+        d.no_of_sales || 0
+      )
+
+  );
+
+
+  const monthlyLabels = monthly.map(m => {
+
+    const month =
+      Number(m.month);
+
+    const year =
+      Number(m.year);
+
+    return month >= 1 &&
+      month <= 12
+
+      ? monthNames[month - 1] +
+        " " +
+        String(year).slice(-2)
+
+      : String(
+          m.month || ""
+        );
+
+  });
+
+
+  const monthlyValues = monthly.map(
+
+    m =>
+      Number(
+        m.no_of_sales || 0
+      )
+
+  );
+
+
+  const rng =
+    seedFromString(
+      dateStr + "-dest"
+    );
+
+  const destData = destinations
+
+    .map(d => ({
+
+      name: d,
+
+      count:
+        rngInt(
+          rng,
+          8,
+          240
+        )
+
+    }))
+
+    .sort(
+      (a, b) =>
+        b.count - a.count
+    )
+
+    .slice(0, 7);
+
+
+  return {
+
+    todayOrders:
+      Number(
+        kpi.today_sales || 0
+      ),
+
+    todayRevenue:
+      Number(
+        kpi.today_revenue || 0
+      ),
+
+    mtdOrders:
+      Number(
+        kpi.mtd_sales || 0
+      ),
+
+    mtdRevenue:
+      Number(
+        kpi.mtd_revenue || 0
+      ),
+
+    prevSameDayOrders:
+      Number(
+        kpi.prev_month_same_day_sales || 0
+      ),
+
+    prevSameDayRevenue:
+      Number(
+        kpi.prev_month_same_day_revenue || 0
+      ),
+
+    prevMonthOrders:
+      Number(
+        kpi.prev_month_sales || 0
+      ),
+
+    prevMonthRevenue:
+      Number(
+        kpi.prev_month_revenue || 0
+      ),
+
+    leaderboard,
+
+    destData,
+
+    dailyLabels,
+
+    dailyValues,
+
+    monthlyLabels,
+
+    monthlyValues,
+
+    monthLabel:
+      monthNames[
+        date.getMonth()
+      ]
+
+  };
+
+}
+
+
+/* ---------- Fallback data ---------- */
+
+function generateData(dateStr){
+
+  const rng =
+    seedFromString(
+      dateStr
+    );
+
+  const date =
+    new Date(
+      dateStr +
+      "T00:00:00"
+    );
+
+  const dayNum =
+    date.getDate();
+
+
+  const todayOrders =
+    rngInt(
+      rng,
+      15,
+      45
+    );
+
+  const todayRevenue =
+    todayOrders *
+    rngInt(
+      rng,
+      800,
+      1100
+    );
+
+  const mtdOrders =
+    rngInt(
+      rng,
+      dayNum * 15,
+      dayNum * 24
+    );
+
+  const mtdRevenue =
+    mtdOrders *
+    rngInt(
+      rng,
+      850,
+      900
+    );
+
+  const prevSameDayOrders =
+    rngInt(
+      rng,
+      dayNum * 13,
+      dayNum * 20
+    );
+
+  const prevSameDayRevenue =
+    prevSameDayOrders *
+    rngInt(
+      rng,
+      830,
+      870
+    );
+
+  const prevMonthOrders =
+    rngInt(
+      rng,
+      850,
+      1050
+    );
+
+  const prevMonthRevenue =
+    prevMonthOrders *
+    rngInt(
+      rng,
+      800,
+      880
+    );
+
+
+  let remainingMtd =
+    mtdOrders;
+
+
+  const leaderboard = salesReps
+
+    .map(
+
+      (name, i) => {
+
+        const share =
+          i === salesReps.length - 1
+
+            ? Math.max(
+                remainingMtd,
+                0
+              )
+
+            : Math.floor(
+
+                mtdOrders *
+                (0.24 - i * 0.03) *
+                (0.85 + rng() * 0.3)
+
+              );
+
+
+        remainingMtd -=
+          share;
+
+
+        const mtd =
+          Math.max(
+            share,
+            5
+          );
+
+        const day =
+          rngInt(
+            rng,
+            0,
+            Math.max(
+              2,
+              Math.floor(
+                mtd * 0.12
+              )
+            )
+          );
+
+        const mtdRev =
+          mtd *
+          rngInt(
+            rng,
+            780,
+            1000
+          );
+
+        const arpu =
+          Math.round(
+            mtdRev /
+            Math.max(
+              mtd,
+              1
+            )
+          );
+
+        const target =
+          125;
+
+        const pct =
+          Math.min(
+            140,
+            Math.round(
+              (mtd / target) *
+              100
+            )
+          );
+
+        const pvMonth =
+          rngInt(
+            rng,
+            0,
+            90
+          );
+
+
+        return {
+
+          name,
+
+          day,
+
+          mtd,
+
+          mtdRev,
+
+          arpu,
+
+          target,
+
+          pct,
+
+          pvMonth
+
+        };
+
+      }
+
+    )
+
+    .sort(
+
+      (a, b) =>
+        b.mtd - a.mtd
+
+    );
+
+
+  const destData = destinations
+
+    .map(d => ({
+
+      name: d,
+
+      count:
+        rngInt(
+          rng,
+          8,
+          240
+        )
+
+    }))
+
+    .sort(
+
+      (a, b) =>
+        b.count - a.count
+
+    )
+
+    .slice(
+      0,
+      7
+    );
+
+
+  const dailyLabels = [];
+
+  const dailyValues = [];
+
+
+  for(
+
+    let h = 1;
+
+    h <= 18;
+
+    h++
+
+  ){
+
+    dailyLabels.push(
+
+      String(h)
+        .padStart(
+          2,
+          "0"
+        ) +
+      ":00"
+
+    );
+
+    dailyValues.push(
+
+      rngInt(
+        rng,
+        10,
+        55
+      )
+
+    );
+
+  }
+
+
+  const monthlyLabels = [];
+
+  const monthlyValues = [];
+
+  let base =
+    rngInt(
+      rng,
+      80,
+      160
+    );
+
+
+  for(
+
+    let m = 7;
+
+    m >= 0;
+
+    m--
+
+  ){
+
+    const d2 =
+      new Date(
+
+        date.getFullYear(),
+
+        date.getMonth() - m,
+
+        1
+
+      );
+
+
+    monthlyLabels.push(
+
+      monthNames[
+        d2.getMonth()
+      ] +
+      " " +
+      String(
+        d2.getFullYear()
+      ).slice(2)
+
+    );
+
+
+    base =
+      Math.max(
+
+        60,
+
+        base +
+        rngInt(
+          rng,
+          -40,
+          220
+        )
+
+      );
+
+
+    monthlyValues.push(
+      base
+    );
+
+  }
+
+
+  return {
+
+    todayOrders,
+
+    todayRevenue,
+
+    mtdOrders,
+
+    mtdRevenue,
+
+    prevSameDayOrders,
+
+    prevSameDayRevenue,
+
+    prevMonthOrders,
+
+    prevMonthRevenue,
+
+    leaderboard,
+
+    destData,
+
+    dailyLabels,
+
+    dailyValues,
+
+    monthlyLabels,
+
+    monthlyValues,
+
+    monthLabel:
+      monthNames[
+        date.getMonth()
+      ]
+
+  };
+
+}
+
+
+let dailyChart;
+
+let monthlyChart;
+
+
+function fmtK(n){
+
+  return (
+    n / 1000
+  ).toFixed(2);
+
+}
+
+
+function ensureChartJsLoaded(){
+
+  if(
+    typeof Chart ===
+    "undefined"
+  ){
+
+    throw new Error(
+
+      "Chart.js failed to load. " +
+      "Check the Chart.js CDN URL or network connection."
+
+    );
+
+  }
+
+}
+
+
+async function render(dateStr){
+
+  ensureChartJsLoaded();
+
+
+  let data;
+
+
+  if(
+    API_CONFIG.enabled
+  ){
+
+    try{
+
+      data =
+        await fetchRealData(
+          dateStr
+        );
+
+    }catch(e){
+
+      const message =
+        e.name === "AbortError"
+
+          ? "Dashboard API timed out after 10 seconds"
+
+          : e.message;
+
+
+      console.warn(
+
+        "Dashboard API unavailable. " +
+        "Using fallback data:",
+
+        message
+
+      );
+
+
+      data =
+        generateData(
+          dateStr
+        );
+
+    }
+
+  }else{
+
+    data =
+      generateData(
+        dateStr
+      );
+
+  }
+
+
+  document.getElementById(
+    "todayOrders"
+  ).innerHTML =
+
+    data.todayOrders +
+    "<small>Orders</small>";
+
+
+  document.getElementById(
+    "todayRevenue"
+  ).textContent =
+
+    "₹" +
+    fmtK(
+      data.todayRevenue
+    ) +
+    "K Revenue";
+
+
+  document.getElementById(
+    "mtdLabel"
+  ).textContent =
+
+    data.monthLabel +
+    " MTD";
+
+
+  document.getElementById(
+    "mtdOrders"
+  ).textContent =
+
+    data.mtdOrders;
+
+
+  document.getElementById(
+    "mtdRevenue"
+  ).textContent =
+
+    fmtK(
+      data.mtdRevenue
+    );
+
+
+  document.getElementById(
+    "prevSameDayOrders"
+  ).textContent =
+
+    data.prevSameDayOrders;
+
+
+  document.getElementById(
+    "prevSameDayRevenue"
+  ).textContent =
+
+    fmtK(
+      data.prevSameDayRevenue
+    );
+
+
+  document.getElementById(
+    "prevMonthOrders"
+  ).textContent =
+
+    data.prevMonthOrders;
+
+
+  document.getElementById(
+    "prevMonthRevenue"
+  ).textContent =
+
+    fmtK(
+      data.prevMonthRevenue
+    );
+
+
+  const lbBody =
+    document.getElementById(
+      "leaderboardBody"
+    );
+
+
+  if(
+    !Array.isArray(
+      data.leaderboard
+    ) ||
+    data.leaderboard.length === 0
+  ){
+
+    data.leaderboard =
+      generateData(
+        dateStr
+      ).leaderboard;
+
+  }
+
+
+  if(
+    !Array.isArray(
+      data.monthlyLabels
+    ) ||
+    data.monthlyLabels.length === 0
+  ){
+
+    const fallback =
+      generateData(
+        dateStr
+      );
+
+    data.monthlyLabels =
+      fallback.monthlyLabels;
+
+    data.monthlyValues =
+      fallback.monthlyValues;
+
+  }
+
+
+  if(
+    !Array.isArray(
+      data.dailyLabels
+    ) ||
+    data.dailyLabels.length === 0
+  ){
+
+    const fallback =
+      generateData(
+        dateStr
+      );
+
+    data.dailyLabels =
+      fallback.dailyLabels;
+
+    data.dailyValues =
+      fallback.dailyValues;
+
+  }
+
+
+  lbBody.innerHTML =
+    data.leaderboard
+
+      .map(
+
+        (r, i) => `
+
+          <tr>
+
+            <td class="rank">
+              ${i + 1}
+            </td>
+
+            <td class="rep-name">
+              ${r.name}
+            </td>
+
+            <td>
+
+              ${r.day}
+
+              <div class="rep-sub">
+
+                ₹${(
+
+                  r.mtdRev /
+                  Math.max(
+                    r.mtd,
+                    1
+                  ) /
+                  1000
+
+                ).toFixed(1)}
+
+              </div>
+
+            </td>
+
+            <td class="mtd-num">
+              ${r.mtd}
+            </td>
+
+            <td>
+              ₹${(
+                r.mtdRev / 1000
+              ).toFixed(1)}K
+            </td>
+
+            <td>
+              ₹${r.arpu}
+            </td>
+
+            <td>
+
+              <div class="target-pct">
+                ${r.pct}%
+              </div>
+
+              <div class="target-bar">
+
+                <span
+                  style="width:${Math.min(
+                    r.pct,
+                    100
+                  )}%"
+                ></span>
+
+              </div>
+
+              <div class="rep-sub">
+                ${r.target}
+              </div>
+
+            </td>
+
+            <td>
+
+              ${
+                r.pvMonth === null
+                  ? "—"
+                  : r.pvMonth
+              }
+
+            </td>
+
+          </tr>
+
+        `
+
+      )
+
+      .join("");
+
+
+  const destList =
+    document.getElementById(
+      "destinationsList"
+    );
+
+
+  destList.innerHTML =
+    data.destData
+
+      .map(
+
+        d => `
+
+          <div class="dest-row">
+
+            <span>
+              ${d.name}
+            </span>
+
+            <span class="dest-count">
+              ${d.count}
+            </span>
+
+          </div>
+
+        `
+
+      )
+
+      .join("");
+
+
+  const orange =
+    "#f2601f";
+
+
+  if(
+    dailyChart
+  ){
+
+    dailyChart.destroy();
+
+  }
+
+
+  dailyChart =
+    new Chart(
+
+      document.getElementById(
+        "dailyChart"
+      ),
+
+      {
+
+        type:
+          "bar",
+
+        data: {
+
+          labels:
+            data.dailyLabels,
+
+          datasets: [
+
+            {
+
+              data:
+                data.dailyValues,
+
+              backgroundColor:
+                orange,
+
+              borderRadius:
+                4,
+
+              barPercentage:
+                0.7,
+
+              categoryPercentage:
+                0.8
+
+            }
+
+          ]
+
+        },
+
+        options: {
+
+          plugins: {
+
+            legend: {
+
+              display:
+                false
+
+            }
+
+          },
+
+          scales: {
+
+            x: {
+
+              grid: {
+
+                display:
+                  false
+
+              }
+
+            },
+
+            y: {
+
+              beginAtZero:
+                true,
+
+              ticks: {
+
+                precision:
+                  0
+
+              }
+
+            }
+
+          },
+
+          responsive:
+            true,
+
+          maintainAspectRatio:
+            false
+
+        }
+
+      }
+
+    );
+
+
+  if(
+    monthlyChart
+  ){
+
+    monthlyChart.destroy();
+
+  }
+
+
+  monthlyChart =
+    new Chart(
+
+      document.getElementById(
+        "monthlyChart"
+      ),
+
+      {
+
+        type:
+          "line",
+
+        data: {
+
+          labels:
+            data.monthlyLabels,
+
+          datasets: [
+
+            {
+
+              data:
+                data.monthlyValues,
+
+              borderColor:
+                orange,
+
+              backgroundColor:
+                "rgba(242,96,31,0.08)",
+
+              tension:
+                0.35,
+
+              fill:
+                true,
+
+              pointRadius:
+                3,
+
+              pointBackgroundColor:
+                orange
+
+            }
+
+          ]
+
+        },
+
+        options: {
+
+          plugins: {
+
+            legend: {
+
+              display:
+                false
+
+            }
+
+          },
+
+          scales: {
+
+            x: {
+
+              grid: {
+
+                display:
+                  false
+
+              }
+
+            },
+
+            y: {
+
+              beginAtZero:
+                true,
+
+              ticks: {
+
+                precision:
+                  0
+
+              }
+
+            }
+
+          },
+
+          responsive:
+            true,
+
+          maintainAspectRatio:
+            false
+
+        }
+
+      }
+
+    );
+
+
+  window._lastData =
+    data;
+
+  window._lastDate =
+    dateStr;
+
+}
+
+
+/* ---------- CSV Download ---------- */
+
+function downloadCSV(){
+
+  const data =
+    window._lastData;
+
+  if(!data)
+    return;
+
+
+  let csv =
+    "Rank,Sales Rep,Day,MTD,MTD Revenue,ARPU,Target %,PV Month\n";
+
+
+  data.leaderboard.forEach(
+
+    (r, i) => {
+
+      csv +=
+
+        `${i + 1},` +
+        `${r.name},` +
+        `${r.day},` +
+        `${r.mtd},` +
+        `${r.mtdRev},` +
+        `${r.arpu},` +
+        `${r.pct}%,` +
+        `${r.pvMonth === null ? "" : r.pvMonth}\n`;
+
+    }
+
+  );
+
+
+  const blob =
+    new Blob(
+
+      [csv],
+
+      {
+        type:
+          "text/csv"
+      }
+
+    );
+
+
+  const url =
+    URL.createObjectURL(
+      blob
+    );
+
+
+  const a =
+    document.createElement(
+      "a"
+    );
+
+  a.href =
+    url;
+
+  a.download =
+    `voyx-leaderboard-${window._lastDate}.csv`;
+
+  a.click();
+
+
+  URL.revokeObjectURL(
+    url
+  );
+
+}
+
+
+/* ---------- Page Events ---------- */
+
+const dateInput =
+  document.getElementById(
+    "dashDate"
+  );
+
+const today =
+  new Date();
+
+
+dateInput.value =
+  today.toISOString()
+    .slice(
+      0,
+      10
+    );
+
+
+dateInput.addEventListener(
+
+  "change",
+
+  () =>
+    render(
+      dateInput.value
+    )
+
+);
+
+
+document.getElementById(
+  "downloadCsv"
+).addEventListener(
+
+  "click",
+
+  downloadCSV
+
+);
+
+
+render(
+  dateInput.value
+).catch(
+
+  error => {
+
+    console.error(
+      "Dashboard render failed:",
+      error
+    );
+
+  }
+
+);
+
+</script>
+
+</body>
+</html>
